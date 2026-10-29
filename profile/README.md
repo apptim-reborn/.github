@@ -15,7 +15,58 @@ Apptim helps developers, QA engineers, and product teams understand how Android 
 ## Understand the experience
 
 - Inspect CPU, memory, FPS, energy, and network activity over time.
-- Review Perceived UX Scores, friction moments, and reports alongside session video.
+- Review UX Scores, friction moments, and reports alongside session video.
 - Use release gates to catch regressions before shipping.
 
-[Website](https://apptim.com) · [Documentation](https://docs.apptim.com)
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph execution["Execution"]
+        direction TB
+        desktop["Desktop"]
+        cli["CLI / CI/CD"]
+        agent["Local Agent"]
+        devices["Android / iOS<br/>Local devices"]
+        farm["AWS Device Farm<br/>Agent + real devices"]
+        desktop --> agent
+        cli --> agent
+        agent <--> devices
+        cli --> farm
+    end
+
+    subgraph studio["Studio"]
+        direction TB
+        api["Studio API"]
+        analysis["AI analysis<br/>Scores, friction and reports"]
+        data[("PostgreSQL")]
+        cache[("Redis")]
+        files[("S3-compatible storage<br/>Video, metrics and traces")]
+        web["Studio Web<br/>Reports and comparisons"]
+        api --> analysis
+        api --> data
+        api --> cache
+        api --> files
+        web <--> api
+    end
+
+    agent -->|"Results and artifacts"| api
+    farm -->|"Results and artifacts"| api
+
+    classDef client fill:#eceeff,stroke:#3e49fc,color:#202786,stroke-width:2px
+    classDef capture fill:#fff0ec,stroke:#f3482a,color:#8c2414,stroke-width:2px
+    classDef backend fill:#fcecf3,stroke:#ca346e,color:#7d2045,stroke-width:2px
+    classDef storage fill:#ffffff,stroke:#3e49fc,color:#202786,stroke-width:1.5px
+    class desktop,cli,web client
+    class agent,devices,farm capture
+    class api,analysis backend
+    class data,cache,files storage
+```
+
+The Agent captures device measurements and available artifacts. Studio stores results, runs analysis, and presents reports and release comparisons. Desktop and CLI share the same Agent; cloud runs execute it on AWS Device Farm hosts.
+
+The shared **Domain** package defines models, metrics, thresholds, and score rules used by Agent and Studio API. Available signals depend on the platform, rendering engine, capture options, and plan.
+
+---
+
+[Landing](https://landing-development-b0d7.up.railway.app) · [Studio](https://studio-web-development.up.railway.app) · [Docs](https://docs-development-e6d6.up.railway.app)
