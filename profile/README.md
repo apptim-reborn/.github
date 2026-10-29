@@ -2,21 +2,28 @@
   <img src="https://raw.githubusercontent.com/apptim-reborn/.github/main/profile/apptim-header.webp" alt="Apptim" />
 </p>
 
-**Catch performance and UX regressions in your mobile app before users feel them.**
+**Understand how your mobile app performs, what users experience, and what changes between releases.**
 
-Apptim helps developers, QA engineers, and product teams understand how Android and iOS apps perform on real devices. Connect device metrics with video and UX analysis to identify when problems happen and compare results across builds.
+Apptim helps developers, QA engineers, and product teams evaluate Android and iOS apps on real devices. It combines device measurements, recorded user journeys, and AI-assisted analysis to connect performance problems with the moments users encounter them. No SDK integration or changes to the app's source code are needed for supported captures.
 
-## Test locally and in CI/CD
+## Why use Apptim
 
-- **Apptim Desktop**: run manual, scripted, and AI-driven tests on connected devices.
-- **Apptim CLI**: run tests from your terminal or CI/CD pipeline, using local devices or AWS Device Farm.
-- **Apptim Studio**: review runs, compare builds, and share performance and UX reports with your team.
+- **Find slow or unresponsive flows.** Connect CPU, memory, rendering, startup, and network signals with what happened on screen.
+- **Check the impact of a change.** Compare builds on the same devices and flows to identify improvements and regressions.
+- **Make release decisions with evidence.** Apply performance and crash gates in CI/CD, and share results with the team.
 
-## Understand the experience
+## How it works
 
-- Inspect CPU, memory, FPS, energy, and network activity over time.
-- Review UX Scores, friction moments, and reports alongside session video.
-- Use release gates to catch regressions before shipping.
+1. **Choose a device and an app.** Connect a local Android or iOS device, or select real cloud devices through AWS Device Farm.
+2. **Exercise a user journey.** Use the app manually, run an existing automation script, or describe a goal for an AI-driven run.
+3. **Capture performance.** The Apptim Agent collects available device metrics and recordings. Optional Android Deep Trace adds a system trace for deeper investigation.
+4. **Review the results in Studio.** Explore timelines and recordings, inspect measured UX scores when available, and use AI-assisted reports to investigate friction and possible improvements. Release comparisons show how compatible builds and flows differ.
+
+## Choose your workflow
+
+- **Desktop**: explore and troubleshoot an app on a device connected to your machine. Supports manual, scripted, and AI-driven runs.
+- **CLI and CI/CD**: automate captures, run device matrices, compare releases, and return gate results to your pipeline.
+- **Studio**: review measurements and analysis, compare results, ask questions about a run, and collaborate through shared workspaces and reports.
 
 ## Architecture
 
@@ -38,7 +45,7 @@ flowchart LR
     subgraph studio["Studio"]
         direction TB
         api["Studio API"]
-        analysis["AI analysis<br/>Scores, friction and reports"]
+        analysis["Analysis<br/>UX scores and AI reports"]
         data[("PostgreSQL")]
         cache[("Redis")]
         files[("S3-compatible storage<br/>Video, metrics and traces")]
@@ -63,9 +70,9 @@ flowchart LR
     class data,cache,files storage
 ```
 
-The Agent captures device measurements and available artifacts. Studio stores results, runs analysis, and presents reports and release comparisons. Desktop and CLI share the same Agent; cloud runs execute it on AWS Device Farm hosts.
+Desktop and local CLI runs use the Agent on your machine. Cloud runs execute the Agent on AWS Device Farm hosts. The Agent handles device interaction and capture; Studio API coordinates result storage and analysis, and Studio Web presents the reports.
 
-The shared **Domain** package defines models, metrics, thresholds, and score rules used by Agent and Studio API. Available signals depend on the platform, rendering engine, capture options, and plan.
+Agent and Studio API share the **Domain** package for data models, metric definitions, thresholds, and score rules. Available measurements and analysis depend on the platform, rendering engine, capture options, and plan.
 
 ---
 
